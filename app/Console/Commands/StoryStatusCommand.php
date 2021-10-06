@@ -48,7 +48,7 @@ class StoryStatusCommand extends Command
         ], Story::all()->map(function($story) {
             if ($session = $story->sessions()->latest()->first()) {
                 $errors = $session->outcomes->filter(function ($outcome) {
-                    return $outcome !== 0;
+                    return $outcome->exit_code !== 0;
                 });
 
                 return [
