@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Models\Schedule as ScheduleModel;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,9 +23,18 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $scheduler)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedules = ScheduleModel::all()->each(function($schedule) use ($scheduler) {
+            $s = $scheduler->command('story:run ' . $schedule->id)
+                ->{$schedule->definition}(...$schedule->args ?? []);
+
+            if ($schedule->notify === ScheduleModel::NOTIFY_ALL) {
+                $s->emailOutputTo($schedule->email);
+            } elseif ($schedule->notify === ScheduleModel::NOTIFY_FAILURE) {
+                $s->emailOutputOnFailure($schedule->email);
+            }
+        });
     }
 
     /**
