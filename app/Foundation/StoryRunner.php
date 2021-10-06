@@ -23,6 +23,8 @@ class StoryRunner
 
     protected $events;
 
+    protected $outputEnv = [];
+
     public function __construct(Factory $factory, Dispatcher $events)
     {
         $this->factory = $factory;
@@ -80,7 +82,7 @@ class StoryRunner
         ];
 
         if ($story->environment) {
-            $env = array_merge($env, $story->environment->values);
+            $env = array_merge($env, $this->outputEnv, $story->environment->values);
         }
 
         return $env;
@@ -106,7 +108,7 @@ class StoryRunner
 
         $taskSlug = Str::slug($step->task->name, '_');
         $stepSlug = Str::slug($step->name, '_');
-        $env['output'][$taskSlug][$stepSlug] = trim($result->getOutput());
+        $this->outputEnv['output'][$taskSlug][$stepSlug] = trim($result->getOutput());
 
         $outcome->session()->associate($session);
         $outcome->step()->associate($step);
