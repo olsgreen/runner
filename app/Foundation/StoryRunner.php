@@ -112,12 +112,12 @@ class StoryRunner
         $outcome->step()->associate($step);
         $outcome->save();
 
-        if (!$result->wasSuccess()) {
-            $this->events->dispatch(new StepFailed($step, $outcome));
+        if ($result->wasSuccess()) {
+            $this->events->dispatch(new StepSucceeded($step, $outcome));
             return 0;
         }
 
-        $this->events->dispatch(new StepSucceeded($step, $outcome));
+        $this->events->dispatch(new StepFailed($step, $outcome));
 
         return $result->getExitCode();
     }
