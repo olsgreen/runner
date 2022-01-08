@@ -74,15 +74,15 @@ class StoryRunner
         return 0;
     }
 
-    protected function getStoryEnvironment(Story $story): array
+    protected function getEnvironment(Session $session): array
     {
         $env = [
-            'start_date' => now(),
+            'start_date' => $session->created_at,
             'output' => []
         ];
 
-        if ($story->environment) {
-            $env = array_merge($env, $this->outputEnv, $story->environment->values);
+        if ($session->story->environment) {
+            $env = array_merge($env, $this->outputEnv, $session->story->environment->values);
         }
 
         return $env;
@@ -94,7 +94,7 @@ class StoryRunner
 
         $runner = $this->factory->make($step->runner);
 
-        $env = $this->getStoryEnvironment($step->task->story);
+        $env = $this->getEnvironment($session);
 
         $result = $runner->run($step, $env, function ($output) use ($step) {
             $this->events->dispatch(new StepOutput($step, $output));
